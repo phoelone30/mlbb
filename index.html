@@ -40,19 +40,10 @@
         <input
           id="playerId"
           name="playerId"
-          placeholder="Enter Your MLBB Player ID"
+          placeholder="Enter Your MLBB Player ID & Server ID"
           required>
       </label>
-
-      <label>
-        Server ID
-        <input
-          id="serverId"
-          name="serverId"
-          placeholder="Enter Your MLBB Server ID"
-          required>
-      </label>
-
+      
       <label>
         Select Product
 
@@ -137,7 +128,6 @@
       <button type="submit">
         Submit Order
       </button>
-
     </form>
 
     <div id="msg"></div>
@@ -240,9 +230,7 @@ updatePrice();
           document.getElementById('msg')
           .innerHTML =
           '✅ Order Submitted<br>Order ID : ' +
-          data.player.id;
-          data.server.id;
-
+          data.order.id;
 
           document.getElementById('orderForm')
           .reset();

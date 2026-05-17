@@ -45,6 +45,15 @@
       </label>
 
       <label>
+        Server ID
+        <input
+          id="serverId"
+          name="serverId"
+          placeholder="Enter Your MLBB Server ID"
+          required>
+      </label>
+
+      <label>
         Select Product
 
         <select id="amountUc" name="amountUc">
@@ -153,6 +162,87 @@ function updatePrice() {
 sel.addEventListener('change', updatePrice);
 
 updatePrice();
+
+// SUBMIT
+    document.getElementById('orderForm')
+    .addEventListener('submit', async (e)=>{
+
+      e.preventDefault();
+
+      const playerId =
+        document.getElementById('playerId')
+        .value.trim();
+
+      const serverId =
+        document.getElementById('serverId')
+        .value.trim();
+
+      const amountUc =
+        document.getElementById('amountUc')
+        .value;
+
+      const slip =
+        document.getElementById('slip')
+        .files[0];
+
+      if(!playerId || !slip) {
+        return alert('Please fill all fields');
+      }
+
+      const amountK = rates[amountUc] || 0;
+
+      const fd = new FormData();
+
+      fd.append('playerId', playerId);
+      fd.append('amountUc', amountUc);
+      fd.append('amountK', amountK);
+      fd.append('slip', slip);
+
+      document.getElementById('msg')
+      .textContent = 'Uploading...';
+
+      try {
+
+        const resp = await fetch(
+          'https://gsd-drx9.onrender.com/order',
+          {
+            method: 'POST',
+            body: fd
+          }
+        );
+
+        const data = await resp.json();
+
+        if(data.ok){
+
+          document.getElementById('msg')
+          .innerHTML =
+          '✅ Order Submitted<br>Order ID : ' +
+          data.order.id;
+
+          document.getElementById('orderForm')
+          .reset();
+
+          updatePrice();
+
+        } else {
+
+          document.getElementById('msg')
+          .textContent =
+          'Error : ' +
+          (data.error || 'unknown');
+
+        }
+
+      } catch(err){
+
+        document.getElementById('msg')
+        .textContent =
+        'Upload Failed : ' + err.message;
+
+      }
+
+    });
 
 </script>
 

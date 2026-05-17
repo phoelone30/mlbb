@@ -86,8 +86,18 @@
             500+500 Diamonds - 32,000 MMK
           </option>
 
-        </select>
+          <!-- NORMAL DIAMOND -->
 
+          <option value="86">86 Diamonds</option>
+          <option value="172">172 Diamonds</option>
+          <option value="257">257 Diamonds</option>
+          <option value="344">344 Diamonds</option>
+          <option value="429">429 Diamonds</option>
+          <option value="514">514 Diamonds</option>
+          <option value="706">706 Diamonds</option>
+          <option value="878">878 Diamonds</option>
+          <option value="963">963 Diamonds</option>
+        </select>
       </label>
 
       <div class="price-box">
@@ -145,7 +155,18 @@ const rates = {
   "50": 3250,
   "150": 9700,
   "250": 15600,
-  "500": 32000
+  "500": 32000,
+
+  // NORMAL DIAMOND
+    86: 3500,
+    172: 7000,
+    257: 10500,
+    344: 14000,
+    429: 17500,
+    514: 21000,
+    706: 28500,
+    878: 35000,
+    963: 38500
 
 };
 
@@ -219,7 +240,9 @@ updatePrice();
           document.getElementById('msg')
           .innerHTML =
           '✅ Order Submitted<br>Order ID : ' +
-          data.order.id;
+          data.player.id;
+          data.server.id;
+
 
           document.getElementById('orderForm')
           .reset();

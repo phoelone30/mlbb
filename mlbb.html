@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MLBB Diamond Shop</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- VIDEO BANNER -->
+  <div class="video-banner">
+    <video autoplay muted loop playsinline>
+      <source src="img/banner.mp4" type="video/mp4">
+    </video>
+
+    <div class="overlay"></div>
+
+    <div class="overlay-text">
+      <h1>MLBB DIAMOND SHOP</h1>
+      <p>Fast Top Up • Trusted Service</p>
+    </div>
+  </div>
+
+  <!-- MAIN BOX -->
+  <div class="container">
+
+    <div class="title-box">
+      <h2>Mobile Legends Diamond Top Up</h2>
+      <p>Fill Your Player ID & Upload Payment Slip</p>
+    </div>
+
+    <form id="orderForm">
+
+      <label>
+        Player ID
+        <input
+          id="playerId"
+          name="playerId"
+          placeholder="Enter Your MLBB Player ID"
+          required>
+      </label>
+
+      <label>
+        Server ID
+        <input
+          id="serverId"
+          name="serverId"
+          placeholder="Enter Your MLBB Server ID"
+          required>
+      </label>
+
+      <label>
+        Select Diamond
+        <select id="amountUc" name="amountUc">
+
+            <!-- WEEKLY PASS -->
+            <option value="weeklypass">
+            Weekly Pass - 6,300 MMK
+            </option>
+
+            <option value="eliteweekly">
+                Elite Weekly Pass - 3,300 MMK
+            </option>
+
+            <option value="epicmonthly">
+                Epic Monthly Pass - 16,600 MMK
+            </option>
+
+            <!-- DOUBLE DIAMOND -->
+            <option value="50">
+                50 + 50 Diamonds - 3,250 MMK
+            </option>
+
+            <option value="150">
+                150 + 150 Diamonds - 9,700 MMK
+            </option>
+
+            <option value="250">
+                250 + 250 Diamonds - 15,600 MMK
+            </option>
+
+            <option value="500">
+                500 + 500 Diamonds - 32,000 MMK
+            </option>
+
+        <!-- NORMAL DIAMOND -->
+
+          <option value="86">86 Diamonds</option>
+          <option value="172">172 Diamonds</option>
+          <option value="257">257 Diamonds</option>
+          <option value="344">344 Diamonds</option>
+          <option value="429">429 Diamonds</option>
+          <option value="514">514 Diamonds</option>
+          <option value="706">706 Diamonds</option>
+          <option value="878">878 Diamonds</option>
+          <option value="963">963 Diamonds</option>
+
+        </select>
+      </label>
+
+      <div class="price-box">
+        Price :
+        <span id="priceK"></span>
+      </div>
+
+      <!-- PAYMENT -->
+      <div class="pay-box">
+        <h3>Payment Accounts</h3>
+
+        <div class="pay-item">
+          <strong>KPay</strong><br>
+          09407765820<br>
+          SoeOoMaung
+        </div>
+
+        <div class="pay-item">
+          <strong>WavePay</strong><br>
+          09661655993<br>
+          KyawThetPaingSoe
+        </div>
+      </div>
+
+      <!-- SLIP -->
+      <label>
+        Upload Payment Slip
+        <input
+          type="file"
+          id="slip"
+          name="slip"
+          accept="image/*"
+          required>
+      </label>
+
+      <button type="submit">
+        Submit Order
+      </button>
+
+    </form>
+
+    <div id="msg"></div>
+
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+
+    // PRICE LIST
+    // PRICE LIST
+    const rates = {
+
+    // WEEKLY & MONTHLY PASS
+    weeklypass: 6300,
+    eliteweekly: 3300,
+    epicmonthly: 16600,
+
+    // DOUBLE DIAMOND
+    "50": 3250,
+    "150": 9700,
+    "250": 15600,
+    "500": 32000,
+
+    // NORMAL DIAMOND
+    86: 3500,
+    172: 7000,
+    257: 10500,
+    344: 14000,
+    429: 17500,
+    514: 21000,
+    706: 28500,
+    878: 35000,
+    963: 38500
+
+    };
+
+    const sel = document.getElementById('amountUc');
+    const priceEl = document.getElementById('priceK');
+
+    function updatePrice() {
+      priceEl.textContent =
+        rates[sel.value].toLocaleString() + ' MMK';
+    }
+
+    sel.addEventListener('change', updatePrice);
+
+    updatePrice();
+
+    // SUBMIT
+    document.getElementById('orderForm')
+    .addEventListener('submit', async (e)=>{
+
+      e.preventDefault();
+
+      const playerId =
+        document.getElementById('playerId')
+        .value.trim();
+
+      const serverId =
+        document.getElementById('serverId')
+        .value.trim();
+
+      const amountUc =
+        document.getElementById('amountUc')
+        .value;
+
+      const slip =
+        document.getElementById('slip')
+        .files[0];
+
+      if(!playerId || !slip) {
+        return alert('Please fill all fields');
+      }
+
+      const amountK = rates[amountUc] || 0;
+
+      const fd = new FormData();
+
+      fd.append('playerId', playerId);
+      fd.append('amountUc', amountUc);
+      fd.append('amountK', amountK);
+      fd.append('slip', slip);
+
+      document.getElementById('msg')
+      .textContent = 'Uploading...';
+
+      try {
+
+        const resp = await fetch(
+          'https://gsd-drx9.onrender.com/order',
+          {
+            method: 'POST',
+            body: fd
+          }
+        );
+
+        const data = await resp.json();
+
+        if(data.ok){
+
+          document.getElementById('msg')
+          .innerHTML =
+          '✅ Order Submitted<br>Order ID : ' +
+          data.order.id;
+
+          document.getElementById('orderForm')
+          .reset();
+
+          updatePrice();
+
+        } else {
+
+          document.getElementById('msg')
+          .textContent =
+          'Error : ' +
+          (data.error || 'unknown');
+
+        }
+
+      } catch(err){
+
+        document.getElementById('msg')
+        .textContent =
+        'Upload Failed : ' + err.message;
+
+      }
+
+    });
+
+  </script>
+
+  <!-- CSS -->
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial, sans-serif;
+    }
+
+    body{
+
+      background-image:
+      url('https://wallpapercave.com/wp/wp5128415.jpg');
+
+      background-size:cover;
+      background-position:center;
+      background-repeat:no-repeat;
+      background-attachment:fixed;
+
+      min-height:100vh;
+      color:white;
+      padding:15px;
+    }
+
+    /* VIDEO */
+    .video-banner{
+
+      position:relative;
+      width:100%;
+      max-width:900px;
+
+      aspect-ratio:16/6;
+
+      overflow:hidden;
+      border-radius:18px;
+
+      margin:auto;
+
+      box-shadow:
+      0 8px 30px rgba(0,0,0,.5);
+
+    }
+
+    .video-banner video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .overlay{
+
+      position:absolute;
+      inset:0;
+
+      background:
+      linear-gradient(
+      to top,
+      rgba(0,0,0,.7),
+      rgba(0,0,0,.1)
+      );
+
+    }
+
+    .overlay-text{
+
+      position:absolute;
+      left:20px;
+      bottom:20px;
+
+      z-index:2;
+
+    }
+
+    .overlay-text h1{
+
+      color:#FFD700;
+      font-size:2rem;
+
+      text-shadow:
+      0 3px 10px rgba(0,0,0,.8);
+
+    }
+
+    .overlay-text p{
+      margin-top:5px;
+      font-size:1rem;
+    }
+
+    /* MAIN */
+    .container{
+
+      width:100%;
+      max-width:420px;
+
+      margin:25px auto;
+
+      background:
+      rgba(0,0,0,.75);
+
+      backdrop-filter:blur(6px);
+
+      padding:25px;
+
+      border-radius:18px;
+
+      box-shadow:
+      0 8px 25px rgba(0,0,0,.5);
+
+    }
+
+    .title-box{
+      text-align:center;
+      margin-bottom:20px;
+    }
+
+    .title-box h2{
+      color:#FFD700;
+      margin-bottom:5px;
+    }
+
+    .title-box p{
+      color:#ddd;
+      font-size:.9rem;
+    }
+
+    label{
+
+      display:block;
+      margin-bottom:16px;
+
+      font-size:.95rem;
+
+    }
+
+    input,
+    select{
+
+      width:100%;
+      padding:12px;
+
+      border:none;
+      border-radius:10px;
+
+      margin-top:7px;
+
+      background:#1f1f1f;
+      color:white;
+
+      font-size:1rem;
+
+      outline:none;
+    }
+
+    input:focus,
+    select:focus{
+
+      border:2px solid #FFD700;
+
+    }
+
+    /* PRICE */
+    .price-box{
+
+      background:#FFD700;
+      color:black;
+
+      padding:14px;
+
+      border-radius:10px;
+
+      text-align:center;
+
+      font-weight:bold;
+
+      margin-bottom:18px;
+    }
+
+    /* PAYMENT */
+    .pay-box{
+
+      margin-bottom:20px;
+
+    }
+
+    .pay-box h3{
+
+      margin-bottom:10px;
+      color:#FFD700;
+
+    }
+
+    .pay-item{
+
+      background:#222;
+
+      padding:12px;
+
+      border-radius:10px;
+
+      margin-bottom:10px;
+
+      line-height:1.7;
+    }
+
+    /* BUTTON */
+    button{
+
+      width:100%;
+      padding:14px;
+
+      border:none;
+      border-radius:12px;
+
+      background:#FFD700;
+      color:black;
+
+      font-size:1rem;
+      font-weight:bold;
+
+      cursor:pointer;
+
+      transition:.3s;
+    }
+
+    button:hover{
+
+      transform:translateY(-2px);
+
+      background:#ffea61;
+
+    }
+
+    /* MESSAGE */
+    #msg{
+
+      margin-top:18px;
+      text-align:center;
+
+      font-weight:bold;
+
+      color:#00ff90;
+
+      line-height:1.7;
+    }
+
+    /* MOBILE */
+    @media(max-width:600px){
+
+      .overlay-text h1{
+        font-size:1.3rem;
+      }
+
+      .overlay-text p{
+        font-size:.8rem;
+      }
+
+      .container{
+        padding:18px;
+      }
+
+    }
+
+  </style>
+
+</body>
+</html>
